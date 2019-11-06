@@ -15,13 +15,16 @@ import React, { Component, Fragment } from 'react';
 import { Dispatch, Action } from 'redux';
 import { FormComponentProps } from 'antd/es/form';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { SorterResult,ColumnProps } from 'antd/es/table';
+import { SorterResult, ColumnProps } from 'antd/es/table';
 import { connect } from 'dva';
 import moment from 'moment';
-import { StateType } from './models/jobRunDetail';
-import { TableListItem, TableListPagination, TableListParams } from './data';
+import { StateType } from './models/springBatch';
+import { TableListItem, TableListParams } from './data';
 
 import styles from './style.less';
+import { PaginationProps } from 'antd/es/pagination/Pagination';
+import _ from 'lodash';
+import Tag from 'antd/es/tag';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -31,18 +34,17 @@ const getValue = (obj: { [x: string]: string[] }) =>
     .join(',');
 
 type IStatusMapType = 'default' | 'processing' | 'success' | 'error';
-//const statusMap = ['default', 'processing', 'success', 'error'];
 const STATUS = ['COMPLETED', 'STARTING', 'STARTED', 'STOPPING', 'STOPPED', 'FAILED', 'ABANDONED', 'UNKNOWN'];
 
 interface TableListProps extends FormComponentProps {
   dispatch: Dispatch<
     Action<
-      | 'jobRunDetail/fetch'
-      | 'jobRunDetail/stopped'
+      | 'springBatch/load'
+      | 'springBatch/stop'
     >
   >;
   loading: boolean;
-  jobRunDetail: StateType;
+  springBatch: StateType;
 }
 
 interface TableListState {
@@ -52,130 +54,91 @@ interface TableListState {
 /* eslint react/no-multi-comp:0 */
 @connect(
   ({
-    jobRunDetail,
+    springBatch,
     loading,
   }: {
-    jobRunDetail: StateType;
+    springBatch: StateType;
     loading: {
       models: {
         [key: string]: boolean;
       };
     };
   }) => ({
-    jobRunDetail,
+    springBatch,
     loading: loading.models.jobRunDetail,
   }),
 )
 class TableList extends Component<TableListProps> {
-  state : TableListState = {
+  state: TableListState = {
     formValues: {}
   }
 
-  columns:ColumnProps<TableListItem>[] = [
+  columns: ColumnProps<TableListItem>[] = [
     {
       title: '任务名称',
-      dataIndex: 'name',
+      dataIndex: 'JobName',
     },
     {
       title: '执行编号',
-      dataIndex: 'runNum',
-      sorter: true,
+      dataIndex: 'JobExecutionId',
     },
     {
       title: '版本',
-      dataIndex: 'version',
+      dataIndex: 'Version',
     },
     {
       title: '状态',
-      dataIndex: 'status',
-      filters: [
-        {
-          text: STATUS[0],
-          value: '0',
+      dataIndex: 'Status',
+      render: (tag: string) =>{
+            let color:string;
+            if(_.isEqual(tag,'COMPLETED')){
+              color = 'green';
+            }else if(_.isEqual(tag,'STARTING')|| _.isEqual(tag,'STARTED')){
+              color = 'orange';
+            }else if(_.isEqual(tag,'FAILED')|| _.isEqual(tag,'ABANDONED')){
+              color = 'red';
+            }else{
+              color = 'volcano';
+            }
+            return (
+              <Tag color={color} key={tag}>
+                {tag}
+              </Tag>
+          );
         },
-        {
-          text: STATUS[1],
-          value: '1',
-        },
-        {
-          text: STATUS[2],
-          value: '2',
-        },
-        {
-          text: STATUS[3],
-          value: '3',
-        },
-        {
-          text: STATUS[4],
-          value: '4',
-        },
-        {
-          text: STATUS[5],
-          value: '5',
-        },
-        {
-          text: STATUS[6],
-          value: '6',
-        },
-        {
-          text: STATUS[7],
-          value: '7'
-        }
-      ],
-      render(val: number) {
-        let statusVal:IStatusMapType;
-        if(val == 0){
-          statusVal = 'success';
-        }else if(val == 1 || val == 2){
-          statusVal = 'processing';
-        }else if(val ==5 || val == 6){
-          statusVal = 'error';
-        }else{
-          statusVal = 'default';
-        }
-        return <Badge status={statusVal} text={STATUS[val]} />;
-      },
     },
     {
       title: '创建时间',
-      dataIndex: 'createAt',
-      sorter: true,
+      dataIndex: 'CreateTime',
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '开始时间',
-      dataIndex: 'startAt',
-      sorter: true,
+      dataIndex: 'StartTime',
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '结束时间',
-      dataIndex: 'endAt',
-      sorter: true,
+      dataIndex: 'EndTime',
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '最后更新时间',
-      dataIndex: 'updatedAt',
-      sorter: true,
+      dataIndex: 'LastUpdated',
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '结束代码',
-      dataIndex: 'exitCode',
-    },
-    {
-      title: '结束信息',
-      dataIndex: 'exitMessage',
+      dataIndex: 'ExitCode',
     },
     {
       title: '操作',
       render: (text, record) => {
-        let hiddenVal :boolean = true;
-        if(record.status == 1 || record.status ==2){
+        let hiddenVal: boolean = true;
+        if (_.isEqual(record.Status, 'STARTING') || _.isEqual(record.Status, 'STARTED')) {
           hiddenVal = false;
         }
-       return <Fragment> <a hidden={hiddenVal} onClick={() => this.handleStopped(record)}>停止</a></Fragment>
+        return <Fragment> <a hidden={hiddenVal} onClick={() => this.handleStopped(record)}>停止</a></Fragment>
       },
     },
   ];
@@ -183,7 +146,8 @@ class TableList extends Component<TableListProps> {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'jobRunDetail/fetch',
+      type: 'springBatch/load',
+      payload: {},
     });
   }
 
@@ -194,31 +158,25 @@ class TableList extends Component<TableListProps> {
       formValues: {},
     });
     dispatch({
-      type: 'jobRunDetail/fetch',
+      type: 'springBatch/load',
       payload: {},
     });
   };
 
   handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-
     const { dispatch, form } = this.props;
-
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
-      const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
+      
+      const params: Partial<TableListParams> = {
+        status:fieldsValue.Status,
+        name:fieldsValue.JobName,
       };
 
-      this.setState({
-        formValues: values,
-      });
-
       dispatch({
-        type: 'jobRunDetail/fetch',
-        payload: values,
+        type: 'springBatch/load',
+        payload: params,
       });
     });
   };
@@ -226,11 +184,9 @@ class TableList extends Component<TableListProps> {
   handleStopped = (fields: TableListItem) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'jobRunDetail/stopped',
+      type: 'springBatch/stop',
       payload: {
-        name: fields.name,
-        desc: fields.name,
-        key: fields.key,
+        jobExecutionId: fields.JobExecutionId,
       },
     });
 
@@ -238,31 +194,19 @@ class TableList extends Component<TableListProps> {
   };
 
   handleStandardTableChange = (
-    pagination: Partial<TableListPagination>,
-    filtersArg: Record<keyof TableListItem, string[]>,
-    sorter: SorterResult<TableListItem>,
+    pagination: Partial<PaginationProps>,
   ) => {
     const { dispatch } = this.props;
     const { formValues } = this.state;
 
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
     const params: Partial<TableListParams> = {
       currentPage: pagination.current,
       pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
+      status:formValues.Status,
+      name:formValues.JobName,
     };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-
     dispatch({
-      type: 'jobRunDetail/fetch',
+      type: 'springBatch/load',
       payload: params,
     });
   };
@@ -275,14 +219,14 @@ class TableList extends Component<TableListProps> {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="任务名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+              {getFieldDecorator('JobName')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="使用状态">
-              {getFieldDecorator('status')(
+              {getFieldDecorator('Status')(
                 <Select placeholder="请选择" allowClear={true} style={{ width: '100%' }}>
-                {STATUS.map((item,index) => (<Option value={index}>{item}</Option>))}
+                  {STATUS.map((item, index) => (<Option value={item}>{item}</Option>))}
                 </Select>,
               )}
             </FormItem>
@@ -304,19 +248,24 @@ class TableList extends Component<TableListProps> {
 
   render() {
     const {
-      jobRunDetail: { data },
+      springBatch: { data },
       loading
     } = this.props;
 
-    const {list,pagination} = data;
+    const { content, pageable, totalElements } = data;
 
-    const paginationProps = pagination
-    ? {
+    const paginationProps = pageable
+      ? {
         showSizeChanger: true,
         showQuickJumper: true,
-        ...pagination,
+        total: totalElements,
+        showTotal: ((total: number) => {
+          return `共 ${total} 条`;
+        }),
+        current: pageable.pageNumber ? pageable.pageNumber + 1 : 1,
+        pageSize: pageable.pageSize,
       }
-    : false;
+      : false;
 
     return (
       <PageHeaderWrapper>
@@ -324,8 +273,9 @@ class TableList extends Component<TableListProps> {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <Table
-              dataSource={list}
+              dataSource={content}
               columns={this.columns}
+              rowKey={row => row.JobExecutionId}
               pagination={paginationProps}
               loading={loading}
               onChange={this.handleStandardTableChange}

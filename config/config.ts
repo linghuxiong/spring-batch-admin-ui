@@ -235,6 +235,12 @@ export default {
     basePath: '/',
   },
   chainWebpack: webpackPlugin,
+  proxy: {
+    '/batch': {
+      target: 'http://localhost:8080/',
+      changeOrigin: true,
+    },
+  },
   /*
   proxy: {
     '/server/api/': {

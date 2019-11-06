@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { queryRule,updateRule } from '../service';
+import { loadBatchJob,stopBatchJob } from '../service';
 
 import { TableListData } from '../data';
 
@@ -17,8 +17,8 @@ export interface JobRunDetailModelType {
   namespace: string;
   state: StateType;
   effects: {
-    fetch: Effect;
-    stopped: Effect;
+    load: Effect;
+    stop: Effect;
   };
   reducers: {
     save: Reducer<StateType>;
@@ -26,25 +26,26 @@ export interface JobRunDetailModelType {
 }
 
 const JobRunDetailModel: JobRunDetailModelType = {
-  namespace: 'jobRunDetail',
+  namespace: 'springBatch',
 
   state: {
     data: {
-      list: [],
-      pagination: {},
+      content: [],
+      pageable: {},
+      totalElements:0,
     },
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(queryRule, payload);
+    *load({ payload }, { call, put }) {
+      const response = yield call(loadBatchJob, payload);
       yield put({
         type: 'save',
         payload: response,
       });
     },
-    *stopped({ payload, callback }, { call, put }) {
-      const response = yield call(updateRule, payload);
+    *stop({ payload, callback }, { call, put }) {
+      const response = yield call(stopBatchJob, payload);
       yield put({
         type: 'save',
         payload: response,

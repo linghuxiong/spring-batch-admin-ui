@@ -1,32 +1,30 @@
 export interface TableListItem {
-  key: number;
-  disabled?: boolean;
-  href: string;
-  name: string;
+  JobExecutionId: string;
+  JobName: string;
   runNum:number;
-  version:number;
-  exitCode:string;
-  exitMessage:string;
-  status: number;
-  updatedAt: Date;
-  createAt: Date;
-  endAt:Date;
-  startAt:Date;
+  Version:number;
+  ExitCode:string;
+  ExitMessage:string;
+  Status: number;
+  LastUpdated: Date;
+  CreateTime: Date;
+  EndTime:Date;
+  StartTime:Date;
 }
 
 export interface TableListPagination {
-  total: number;
   pageSize: number;
-  current: number;
+  pageNumber: number;
+  current:number;
 }
 
 export interface TableListData {
-  list: TableListItem[];
-  pagination: Partial<TableListPagination>;
+  content: TableListItem[];
+  pageable: Partial<TableListPagination>;
+  totalElements:number;
 }
 
 export interface TableListParams {
-  sorter: string;
   status: string;
   name: string;
   pageSize: number;

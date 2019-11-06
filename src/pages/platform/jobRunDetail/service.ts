@@ -1,14 +1,14 @@
 import request from '@/utils/request';
 import { TableListParams } from './data';
 
-export async function queryRule(params: TableListParams) {
-  return request('/api/jobDetail', {
+export async function loadBatchJob(params: TableListParams) {
+  return request('/batch/load', {
     params,
   });
 }
 
-export async function updateRule(params: TableListParams) {
-  return request('/api/jobDetail', {
+export async function stopBatchJob(params: TableListParams) {
+  return request('/batch/stop', {
     method: 'POST',
     data: {
       ...params,

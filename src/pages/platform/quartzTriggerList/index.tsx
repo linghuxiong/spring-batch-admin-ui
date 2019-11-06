@@ -291,6 +291,7 @@ class TableList extends Component<TableListProps> {
             <Table
               dataSource={list}
               columns={this.columns}
+              rowKey='id'
               pagination={paginationProps}
               loading={loading}
               onChange={this.handleStandardTableChange}
