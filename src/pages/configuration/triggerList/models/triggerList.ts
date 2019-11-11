@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { addRule, queryRule, removeRule, stoppedTrigger} from '../service';
+import { queryTrigger, saveTrigger, removeTrigger, toggleTriggerStatus} from '../service';
 
 import { TableListData } from '../data';
 
@@ -18,9 +18,9 @@ export interface TriggerListModelType {
   state: StateType;
   effects: {
     fetch: Effect;
-    add: Effect;
+    saveTrigger: Effect;
     remove: Effect;
-    stopped: Effect;
+    toggleStatus: Effect;
   };
   reducers: {
     save: Reducer<StateType>;
@@ -32,21 +32,23 @@ const TriggerList: TriggerListModelType = {
 
   state: {
     data: {
-      list: [],
-      pagination: {},
+      content:[],
+      pageable: {},
+      totalElements:0,
     },
   },
 
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = yield call(queryRule, payload);
+      const response = yield call(queryTrigger, payload);
       yield put({
         type: 'save',
         payload: response,
       });
     },
-    *add({ payload, callback }, { call, put }) {
-      const response = yield call(addRule, payload);
+    *saveTrigger({ payload, callback }, { call, put }) {
+      yield call(saveTrigger, payload);
+      const response = yield call(queryTrigger);
       yield put({
         type: 'save',
         payload: response,
@@ -54,15 +56,17 @@ const TriggerList: TriggerListModelType = {
       if (callback) callback();
     },
     *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
+      yield call(removeTrigger, payload);
+      const response = yield call(queryTrigger);
       yield put({
         type: 'save',
         payload: response,
       });
       if (callback) callback();
     },
-    *stopped({payload, callback},{call, put}){
-      const response = yield call(stoppedTrigger, payload);
+    *toggleStatus({payload, callback},{call, put}){
+      yield call(toggleTriggerStatus, payload);
+      const response = yield call(queryTrigger);
       yield put({
         type: 'save',
         payload: response,

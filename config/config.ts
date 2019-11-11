@@ -240,6 +240,18 @@ export default {
       target: 'http://localhost:8080/',
       changeOrigin: true,
     },
+    '/trigger': {
+      target: 'http://localhost:8080/',
+      changeOrigin: true,
+    },
+    '/job': {
+      target: 'http://localhost:8080/',
+      changeOrigin: true,
+    },
+    '/quartz': {
+      target: 'http://localhost:8080/',
+      changeOrigin: true,
+    },
   },
   /*
   proxy: {

@@ -1,38 +1,31 @@
 import request from '@/utils/request';
 import { TableListParams } from './data';
 
-export async function queryRule(params: TableListParams) {
-  return request('/api/trigger', {
+export async function queryTrigger(params: TableListParams) {
+  return request('/trigger/load', {
     params,
   });
 }
 
-export async function removeRule(params: TableListParams) {
-  return request('/api/trigger', {
+export async function removeTrigger(params: TableListParams) {
+  return request('/trigger/delete', {
+    method: 'POST',
+    params,
+  });
+}
+
+export async function saveTrigger(params: TableListParams) {
+  return request('/trigger/save', {
     method: 'POST',
     data: {
       ...params,
-      method: 'delete',
     },
   });
 }
 
-export async function addRule(params: TableListParams) {
-  return request('/api/trigger', {
+export async function toggleTriggerStatus(params: TableListParams) {
+  return request('/trigger/toggleStatus', {
     method: 'POST',
-    data: {
-      ...params,
-      method: 'post',
-    },
-  });
-}
-
-export async function stoppedTrigger(params: TableListParams) {
-  return request('/api/trigger', {
-    method: 'POST',
-    data: {
-      ...params,
-      method: 'stopped',
-    },
+    params,
   });
 }

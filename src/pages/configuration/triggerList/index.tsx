@@ -1,5 +1,4 @@
 import {
-  Badge,
   Button,
   Card,
   Col,
@@ -24,24 +23,21 @@ import StandardTable from './components/StandardTable';
 import { TableListItem, TableListPagination, TableListParams } from './data';
 
 import styles from './style.less';
+import _ from 'lodash';
+import Tag from 'antd/es/tag';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = (obj: { [x: string]: string[] }) =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
 
-type IStatusMapType = 'default' | 'processing' | 'success' | 'error';
 const status = ['停止','启动'];
 
 interface TableListProps extends FormComponentProps {
   dispatch: Dispatch<
     Action<
-      | 'triggerList/add'
+      | 'triggerList/saveTrigger'
       | 'triggerList/fetch'
       | 'triggerList/remove'
-      | 'triggerList/stopped'
+      | 'triggerList/toggleStatus'
     >
   >;
   loading: boolean;
@@ -86,6 +82,10 @@ class TableList extends Component<TableListProps, TableListState> {
       dataIndex: 'name',
     },
     {
+      title: '触发器分组',
+      dataIndex: 'group',
+    },
+    {
       title: '定时表达式',
       dataIndex: 'cronExpression',
     },
@@ -98,25 +98,21 @@ class TableList extends Component<TableListProps, TableListState> {
     {
       title: '状态',
       dataIndex: 'status',
-      filters: [
-        {
-          text: status[0],
-          value: '0',
+      render: (tag: number) =>{
+            let color:string;
+            if(_.isEqual(tag,1)){
+              color = 'green';
+            }else if(_.isEqual(tag,0)){
+              color = 'red';
+            }else{
+              color = 'volcano';
+            }
+            return (
+              <Tag color={color} key={tag}>
+                {status[tag]}
+              </Tag>
+          );
         },
-        {
-          text: status[1],
-          value: '1',
-        }
-      ],
-      render(val: number) {
-        let statusVal:IStatusMapType;
-        if(val == 1){
-          statusVal = "success";
-        }else{
-          statusVal = "error";
-        }
-        return <Badge status={statusVal} text={status[val]} />;
-      },
     },
     {
       title: '创建时间',
@@ -133,13 +129,13 @@ class TableList extends Component<TableListProps, TableListState> {
       render: (text, record) => (
         <Fragment>
           {record.status == 0?
-          <a onClick={() => this.toggleStatus(record.key,1)}>开始</a>:
-          <a onClick={() => this.toggleStatus(record.key,0)}>停止</a>
+          <a onClick={() => this.toggleStatus(record.id,1)}>开始</a>:
+          <a onClick={() => this.toggleStatus(record.id,0)}>停止</a>
           }
           <Divider type="vertical" />
           <a onClick={() => this.handleUpdateModalVisible(record,true)}>编辑</a>
           <Divider type="vertical" />
-          <a onClick={() => this.handleRemove(record.key)}>删除</a>
+          <a onClick={() => this.handleRemove(record.id)}>删除</a>
         </Fragment>
       ),
     },
@@ -160,21 +156,11 @@ class TableList extends Component<TableListProps, TableListState> {
     const { dispatch } = this.props;
     const { formValues } = this.state;
 
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
     const params: Partial<TableListParams> = {
       currentPage: pagination.current,
       pageSize: pagination.pageSize,
       ...formValues,
-      ...filters,
     };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
 
     dispatch({
       type: 'triggerList/fetch',
@@ -233,7 +219,7 @@ class TableList extends Component<TableListProps, TableListState> {
   handleAdd = (fields:TableListItem) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'triggerList/add',
+      type: 'triggerList/saveTrigger',
       payload: fields,
     });
 
@@ -246,7 +232,7 @@ class TableList extends Component<TableListProps, TableListState> {
     dispatch({
       type: 'triggerList/remove',
       payload: {
-        key:key
+        triggerId:key
       },
     });
 
@@ -256,9 +242,9 @@ class TableList extends Component<TableListProps, TableListState> {
   toggleStatus = (key:number,status:number) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'triggerList/stopped',
+      type: 'triggerList/toggleStatus',
       payload: {
-        key:key,
+        triggerId:key,
         status:status
       },
     });
@@ -279,28 +265,33 @@ class TableList extends Component<TableListProps, TableListState> {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="触发器名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+              {getFieldDecorator('triggerName')(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+          <Col md={8} sm={24}>
+            <FormItem label="触发器分组">
+              {getFieldDecorator('triggerGroup')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="触发器状态">
-              {getFieldDecorator('status')(
+              {getFieldDecorator('triggerStatus')(
                 <Select placeholder="请选择" allowClear={true} style={{ width: '100%' }}>
                   {status.map((item,index) => (<Option value={index}>{item}</Option>))}
                 </Select>,
               )}
             </FormItem>
           </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-              <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
-                重置
-              </Button>
-            </span>
-          </Col>
+        </Row>
+        <Row>
+          <div style={{ float: 'right', marginBottom: 24 }}>
+            <Button type="primary" htmlType="submit">
+              查询
+            </Button>
+            <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
+              重置
+            </Button>
+          </div>
         </Row>
       </Form>
     );

@@ -30,7 +30,7 @@ class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpda
       form.validateFields((err, fieldsValue) => {
         if (err) return;
         form.resetFields();
-        fieldsValue.key = values.key;
+        fieldsValue.id = values.id;
         handleAdd(fieldsValue);
       }); 
     };
@@ -67,6 +67,17 @@ class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpda
               ],
             })(<Input placeholder="请输入一个触发器名称" />)}
           </FormItem>
+          <FormItem {...formItemLayout} label="触发器分组">
+            {getFieldDecorator('group', {
+              initialValue: values.group,
+              rules: [
+                {
+                  required: true,
+                  message: '触发器分组不能为空',
+                },
+              ],
+            })(<Input placeholder="请输入一个触发器名称" />)}
+          </FormItem>
           <FormItem {...formItemLayout} label="定时表达式">
             {getFieldDecorator('cronExpression', {
               initialValue: values.cronExpression,
@@ -84,7 +95,7 @@ class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpda
               <DatePicker showTime style={{ width: '100%' }} disabled />,
             )}
           </FormItem>
-          {values.createdAt?
+          {values.updatedAt?
           <FormItem {...formItemLayout} label="更新时间时间">
             {getFieldDecorator('updatedAt', {
               initialValue: moment(values.updatedAt),
