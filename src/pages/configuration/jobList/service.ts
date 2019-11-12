@@ -1,38 +1,31 @@
 import request from '@/utils/request';
 import { TableListParams } from './data';
 
-export async function queryRule(params: TableListParams) {
-  return request('/api/job', {
+export async function queryJob(params: TableListParams) {
+  return request('/job/load', {
     params,
   });
 }
 
-export async function removeRule(params: TableListParams) {
-  return request('/api/job', {
+export async function removeJob(params: TableListParams) {
+  return request('/job/delete', {
+    method: 'POST',
+    params,
+  });
+}
+
+export async function saveJob(params: TableListParams) {
+  return request('/job/save', {
     method: 'POST',
     data: {
       ...params,
-      method: 'delete',
     },
   });
 }
 
-export async function addRule(params: TableListParams) {
-  return request('/api/job', {
+export async function toggleStatus(params: TableListParams) {
+  return request('/job/toggleStatus', {
     method: 'POST',
-    data: {
-      ...params,
-      method: 'post',
-    },
-  });
-}
-
-export async function stoppedJob(params: TableListParams) {
-  return request('/api/job', {
-    method: 'POST',
-    data: {
-      ...params,
-      method: 'stopped',
-    },
+    params,
   });
 }

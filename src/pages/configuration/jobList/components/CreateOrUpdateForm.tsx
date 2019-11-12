@@ -1,4 +1,4 @@
-import { Form, Input, Modal, DatePicker, Radio, Select } from 'antd';
+import { Form, Input, Modal, DatePicker, Radio, Select, InputNumber } from 'antd';
 
 import { FormComponentProps } from 'antd/es/form';
 import React, { Component } from 'react';
@@ -73,9 +73,14 @@ class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpda
             })(<Input placeholder="请输入一个任务名称" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="注册名称">
+            {getFieldDecorator('springJobName', {
+              initialValue: values.springJobName,
+            })(<Input placeholder="请输入注册名称" />)}
+          </FormItem>
+          <FormItem {...formItemLayout} label="预计执行时间">
             {getFieldDecorator('estimatedTime', {
               initialValue: values.estimatedTime,
-            })(<Input placeholder="请输入注册名称" />)}
+            })(<InputNumber min={0} placeholder="请输入预计执行时间(单位秒)" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="回调路径">
             {getFieldDecorator('callbachUrl', {
@@ -113,7 +118,7 @@ class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpda
               <DatePicker showTime style={{ width: '100%' }} disabled />,
             )}
           </FormItem>
-          {values.createdAt?
+          {values.updatedAt?
           <FormItem {...formItemLayout} label="更新时间时间">
             {getFieldDecorator('updatedAt', {
               initialValue: moment(values.updatedAt),
@@ -126,8 +131,9 @@ class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpda
             label="状态"
           >
             <div>
+              {console.log(values)}
               {getFieldDecorator('status', {
-                initialValue: '1',
+                initialValue: values.status+"",
               })(
                 <Radio.Group>
                   <Radio value="1">

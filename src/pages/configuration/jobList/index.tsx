@@ -15,7 +15,7 @@ import React, { Component, Fragment } from 'react';
 import { Dispatch, Action } from 'redux';
 import { FormComponentProps } from 'antd/es/form';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { SorterResult, ColumnProps } from 'antd/es/table';
+import { ColumnProps } from 'antd/es/table';
 import { connect } from 'dva';
 import moment from 'moment';
 import { StateType } from './models/jobList';
@@ -27,10 +27,6 @@ import styles from './style.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = (obj: { [x: string]: string[] }) =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
 
 type IStatusMapType = 'default' | 'processing' | 'success' | 'error';
 const status = ['停止','启动'];
@@ -39,10 +35,10 @@ const types = ['手动任务','日任务','周任务','月任务','其他周期�
 interface TableListProps extends FormComponentProps {
   dispatch: Dispatch<
     Action<
-      | 'jobList/add'
       | 'jobList/fetch'
+      | 'jobList/saveJob'
       | 'jobList/remove'
-      | 'jobList/stopped'
+      | 'jobList/toggleStatus'
     >
   >;
   loading: boolean;
@@ -94,7 +90,13 @@ class TableList extends Component<TableListProps, TableListState> {
       title: '预计时间',
       dataIndex: 'estimatedTime',
       align: 'right',
-      render: (val: string) => `${val} 秒`,
+      render: (val: string) => {
+        if(val){
+          return `${val} 秒`;
+        }else{
+          return null;
+        }
+      },
     },
     {
       title: '任务类别',
@@ -156,27 +158,15 @@ class TableList extends Component<TableListProps, TableListState> {
 
   handleStandardTableChange = (
     pagination: Partial<TableListPagination>,
-    filtersArg: Record<keyof TableListItem, string[]>,
-    sorter: SorterResult<TableListItem>,
   ) => {
     const { dispatch } = this.props;
     const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
 
     const params: Partial<TableListParams> = {
       currentPage: pagination.current,
       pageSize: pagination.pageSize,
       ...formValues,
-      ...filters,
     };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
 
     dispatch({
       type: 'jobList/fetch',
@@ -220,7 +210,8 @@ class TableList extends Component<TableListProps, TableListState> {
   handleModalVisible = (flag?: boolean) => {
     this.setState({
       modalVisible: !!flag,
-      itemValues:{}
+      itemValues:{},
+      title:"新建任务"
     });
   };
 
@@ -235,11 +226,16 @@ class TableList extends Component<TableListProps, TableListState> {
   handleAdd = (fields:TableListItem) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'jobList/add',
+      type: 'jobList/saveJob',
       payload: fields,
     });
 
-    message.success('添加成功');
+    if(fields && fields.id){
+      message.success('添加成功');
+    }else{
+      message.success('修改成功');
+    }
+
     this.handleModalVisible();
   };
 
@@ -248,7 +244,7 @@ class TableList extends Component<TableListProps, TableListState> {
     dispatch({
       type: 'jobList/remove',
       payload: {
-        id:key
+        jobId:key
       },
     });
 
@@ -258,9 +254,9 @@ class TableList extends Component<TableListProps, TableListState> {
   toggleStatus = (key:number,status:number) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'jobList/stopped',
+      type: 'jobList/toggleStatus',
       payload: {
-        id:key,
+        jobId:key,
         status:status
       },
     });

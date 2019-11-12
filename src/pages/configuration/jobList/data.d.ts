@@ -14,18 +14,18 @@ export interface TableListItem {
 }
 
 export interface TableListPagination {
-  total: number;
   pageSize: number;
-  current: number;
+  pageNumber: number;
+  current:number;
 }
 
 export interface TableListData {
-  list: TableListItem[];
-  pagination: Partial<TableListPagination>;
+  content: TableListItem[];
+  pageable: Partial<TableListPagination>;
+  totalElements:number;
 }
 
 export interface TableListParams {
-  sorter: string;
   status: number;
   name: string;
   type:number;

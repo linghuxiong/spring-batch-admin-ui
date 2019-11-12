@@ -109,7 +109,7 @@ class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpda
           >
             <div>
               {getFieldDecorator('status', {
-                initialValue: '1',
+                initialValue: values.status+"",
               })(
                 <Radio.Group>
                   <Radio value="1">

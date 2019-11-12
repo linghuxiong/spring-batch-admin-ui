@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { addRule, queryRule, removeRule, stoppedJob} from '../service';
+import { queryJob,saveJob,removeJob,toggleStatus} from '../service';
 
 import { TableListData } from '../data';
 
@@ -18,9 +18,9 @@ export interface JobListModelType {
   state: StateType;
   effects: {
     fetch: Effect;
-    add: Effect;
+    saveJob: Effect;
     remove: Effect;
-    stopped: Effect;
+    toggleStatus: Effect;
   };
   reducers: {
     save: Reducer<StateType>;
@@ -32,21 +32,23 @@ const JobListModel: JobListModelType = {
 
   state: {
     data: {
-      list: [],
-      pagination: {},
+      content: [],
+      pageable: {},
+      totalElements:0,
     },
   },
 
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = yield call(queryRule, payload);
+      const response = yield call(queryJob, payload);
       yield put({
         type: 'save',
         payload: response,
       });
     },
-    *add({ payload, callback }, { call, put }) {
-      const response = yield call(addRule, payload);
+    *saveJob({ payload, callback }, { call, put }) {
+      yield call(saveJob, payload);
+      const response = yield call(queryJob);
       yield put({
         type: 'save',
         payload: response,
@@ -54,15 +56,17 @@ const JobListModel: JobListModelType = {
       if (callback) callback();
     },
     *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
+      yield call(removeJob, payload);
+      const response = yield call(queryJob);
       yield put({
         type: 'save',
         payload: response,
       });
       if (callback) callback();
     },
-    *stopped({payload, callback},{call, put}){
-      const response = yield call(stoppedJob, payload);
+    *toggleStatus({payload, callback},{call, put}){
+      yield call(toggleStatus, payload);
+      const response = yield call(queryJob);
       yield put({
         type: 'save',
         payload: response,

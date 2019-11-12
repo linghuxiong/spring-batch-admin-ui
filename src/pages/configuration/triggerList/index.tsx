@@ -93,7 +93,12 @@ class TableList extends Component<TableListProps, TableListState> {
       title: '时间间隔',
       dataIndex: 'timeInterval',
       align: 'right',
-      render: (val: string) => `${val} 秒`,
+      render: (val: string) =>{ 
+        if(val){
+          return `${val} 秒`
+        }
+        return null;
+      },
     },
     {
       title: '状态',
@@ -150,8 +155,6 @@ class TableList extends Component<TableListProps, TableListState> {
 
   handleStandardTableChange = (
     pagination: Partial<TableListPagination>,
-    filtersArg: Record<keyof TableListItem, string[]>,
-    sorter: SorterResult<TableListItem>,
   ) => {
     const { dispatch } = this.props;
     const { formValues } = this.state;
