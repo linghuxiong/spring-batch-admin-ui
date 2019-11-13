@@ -15,7 +15,7 @@ import React, { Component, Fragment } from 'react';
 import { Dispatch, Action } from 'redux';
 import { FormComponentProps } from 'antd/es/form';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { SorterResult, ColumnProps } from 'antd/es/table';
+import { ColumnProps } from 'antd/es/table';
 import { connect } from 'dva';
 import moment from 'moment';
 import { StateType } from './models/springBatch';
@@ -28,12 +28,7 @@ import Tag from 'antd/es/tag';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = (obj: { [x: string]: string[] }) =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
 
-type IStatusMapType = 'default' | 'processing' | 'success' | 'error';
 const STATUS = ['COMPLETED', 'STARTING', 'STARTED', 'STOPPING', 'STOPPED', 'FAILED', 'ABANDONED', 'UNKNOWN'];
 
 interface TableListProps extends FormComponentProps {
@@ -76,19 +71,19 @@ class TableList extends Component<TableListProps> {
   columns: ColumnProps<TableListItem>[] = [
     {
       title: '任务名称',
-      dataIndex: 'JobName',
+      dataIndex: 'jobName',
     },
     {
       title: '执行编号',
-      dataIndex: 'JobExecutionId',
+      dataIndex: 'jobExecutionId',
     },
     {
       title: '版本',
-      dataIndex: 'Version',
+      dataIndex: 'version',
     },
     {
       title: '状态',
-      dataIndex: 'Status',
+      dataIndex: 'status',
       render: (tag: string) =>{
             let color:string;
             if(_.isEqual(tag,'COMPLETED')){
@@ -109,33 +104,33 @@ class TableList extends Component<TableListProps> {
     },
     {
       title: '创建时间',
-      dataIndex: 'CreateTime',
+      dataIndex: 'createTime',
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '开始时间',
-      dataIndex: 'StartTime',
+      dataIndex: 'startTime',
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '结束时间',
-      dataIndex: 'EndTime',
+      dataIndex: 'endTime',
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '最后更新时间',
-      dataIndex: 'LastUpdated',
+      dataIndex: 'lastUpdated',
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '结束代码',
-      dataIndex: 'ExitCode',
+      dataIndex: 'exitCode',
     },
     {
       title: '操作',
       render: (text, record) => {
         let hiddenVal: boolean = true;
-        if (_.isEqual(record.Status, 'STARTING') || _.isEqual(record.Status, 'STARTED')) {
+        if (_.isEqual(record.status, 'STARTING') || _.isEqual(record.status, 'STARTED')) {
           hiddenVal = false;
         }
         return <Fragment> <a hidden={hiddenVal} onClick={() => this.handleStopped(record)}>停止</a></Fragment>
@@ -186,7 +181,7 @@ class TableList extends Component<TableListProps> {
     dispatch({
       type: 'springBatch/stop',
       payload: {
-        jobExecutionId: fields.JobExecutionId,
+        jobExecutionId: fields.jobExecutionId,
       },
     });
 
@@ -275,7 +270,7 @@ class TableList extends Component<TableListProps> {
             <Table
               dataSource={content}
               columns={this.columns}
-              rowKey={row => row.JobExecutionId}
+              rowKey={row => row.jobExecutionId}
               pagination={paginationProps}
               loading={loading}
               onChange={this.handleStandardTableChange}

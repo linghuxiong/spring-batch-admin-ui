@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { queryRule,removeRule } from '../service';
+import { loadQuartzTrigger,removeQuartzTrigger } from '../service';
 
 import { TableListData } from '../data';
 
@@ -30,21 +30,23 @@ const QuartzTriggerListModel: QuartzTriggerListModelType = {
 
   state: {
     data: {
-      list: [],
-      pagination: {},
+      content: [],
+      pageable: {},
+      totalElements:0,
     },
   },
 
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = yield call(queryRule, payload);
+      const response = yield call(loadQuartzTrigger, payload);
       yield put({
         type: 'save',
         payload: response,
       });
     },
     *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
+      yield call(removeQuartzTrigger, payload);
+      const response = yield call(loadQuartzTrigger);
       yield put({
         type: 'save',
         payload: response,

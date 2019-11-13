@@ -1,15 +1,14 @@
 export interface TableListItem {
-  JobExecutionId: string;
-  JobName: string;
-  runNum:number;
-  Version:number;
-  ExitCode:string;
-  ExitMessage:string;
-  Status: number;
-  LastUpdated: Date;
-  CreateTime: Date;
-  EndTime:Date;
-  StartTime:Date;
+  jobExecutionId: string;
+  jobName: string;
+  version:number;
+  exitCode:string;
+  exitMessage:string;
+  status: number;
+  lastUpdated: Date;
+  createTime: Date;
+  endTime:Date;
+  startTime:Date;
 }
 
 export interface TableListPagination {

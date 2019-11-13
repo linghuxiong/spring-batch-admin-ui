@@ -1,18 +1,15 @@
 import request from '@/utils/request';
 import { TableListParams } from './data';
 
-export async function queryRule(params: TableListParams) {
-  return request('/api/quartz', {
+export async function loadQuartzTrigger(params: TableListParams) {
+  return request('/quartz/load', {
     params,
   });
 }
 
-export async function removeRule(params: TableListParams) {
-  return request('/api/quartz', {
+export async function removeQuartzTrigger(params: TableListParams) {
+  return request('/quartz/delete', {
     method: 'POST',
-    data: {
-      ...params,
-      method: 'delete',
-    },
+    params,
   });
 }

@@ -1,5 +1,5 @@
 export interface TableListItem {
-  id: number;
+  id: string;
   schedName:string;
   triggerName:string;
   triggerGroup:string;
@@ -15,20 +15,20 @@ export interface TableListItem {
 }
 
 export interface TableListPagination {
-  total: number;
   pageSize: number;
-  current: number;
+  pageNumber: number;
+  current:number;
 }
 
 export interface TableListData {
-  list: TableListItem[];
-  pagination: Partial<TableListPagination>;
+  content: TableListItem[];
+  pageable: Partial<TableListPagination>;
+  totalElements:number;
 }
 
 export interface TableListParams {
   triggerStatus: any;
   triggerName: any;
-  sorter: string;
   schedName:string;
   jobName:string;
   jobGroup:string;

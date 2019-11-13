@@ -168,7 +168,7 @@ class TableList extends Component<TableListProps> {
     });
   };
 
-  handleRemove = (key: number) => {
+  handleRemove = (key: string) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'quartzTriggerList/remove',
@@ -182,27 +182,15 @@ class TableList extends Component<TableListProps> {
 
   handleStandardTableChange = (
     pagination: Partial<TableListPagination>,
-    filtersArg: Record<keyof TableListItem, string[]>,
-    sorter: SorterResult<TableListItem>,
   ) => {
     const { dispatch } = this.props;
     const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
 
     const params: Partial<TableListParams> = {
       currentPage: pagination.current,
       pageSize: pagination.pageSize,
       ...formValues,
-      ...filters,
     };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
 
     dispatch({
       type: 'quartzTriggerList/fetch',
@@ -273,13 +261,18 @@ class TableList extends Component<TableListProps> {
       loading
     } = this.props;
 
-    const { list, pagination } = data;
+    const { content, pageable ,totalElements} = data;
 
-    const paginationProps = pagination
+    const paginationProps = pageable
       ? {
         showSizeChanger: true,
         showQuickJumper: true,
-        ...pagination,
+        total: totalElements,
+        showTotal: ((total: number) => {
+          return `共 ${total} 条`;
+        }),
+        current: pageable.pageNumber ? pageable.pageNumber + 1 : 1,
+        pageSize: pageable.pageSize,
       }
       : false;
 
@@ -289,9 +282,9 @@ class TableList extends Component<TableListProps> {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <Table
-              dataSource={list}
+              dataSource={content}
               columns={this.columns}
-              rowKey='id'
+              rowKey={row => row.id}
               pagination={paginationProps}
               loading={loading}
               onChange={this.handleStandardTableChange}
