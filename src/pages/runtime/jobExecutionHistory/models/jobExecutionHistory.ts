@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { queryRule,updateRule } from '../service';
+import { queryJobExecutionHistory } from '../service';
 
 import { TableListData } from '../data';
 
@@ -18,7 +18,6 @@ export interface JobExecutionHistoryModelType {
   state: StateType;
   effects: {
     fetch: Effect;
-    stopped: Effect;
   };
   reducers: {
     save: Reducer<StateType>;
@@ -30,26 +29,19 @@ const JobExecutionHistoryModel: JobExecutionHistoryModelType = {
 
   state: {
     data: {
-      list: [],
-      pagination: {},
+      content: [],
+      pageable: {},
+      totalElements:0,
     },
   },
 
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = yield call(queryRule, payload);
+      const response = yield call(queryJobExecutionHistory, payload);
       yield put({
         type: 'save',
         payload: response,
       });
-    },
-    *stopped({ payload, callback }, { call, put }) {
-      const response = yield call(updateRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
     },
   },
 

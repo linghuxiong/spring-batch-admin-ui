@@ -38,7 +38,6 @@ interface TableListProps extends FormComponentProps {
   dispatch: Dispatch<
     Action<
       | 'jobExecutionHistory/fetch'
-      | 'jobExecutionHistory/stopped'
     >
   >;
   loading: boolean;
@@ -74,16 +73,15 @@ class TableList extends Component<TableListProps> {
   columns:ColumnProps<TableListItem>[] = [
     {
       title: '任务名称',
-      dataIndex: 'name',
+      dataIndex: 'jobName',
     },
     {
       title: '执行编号',
-      dataIndex: 'runNum',
-      sorter: true,
+      dataIndex: 'runId',
     },
     {
-      title: '版本',
-      dataIndex: 'version',
+      title: '执行用户',
+      dataIndex: 'userName',
     },
     {
       title: '状态',
@@ -164,20 +162,16 @@ class TableList extends Component<TableListProps> {
       title: '结束代码',
       dataIndex: 'exitCode',
     },
-    {
-      title: '结束信息',
-      dataIndex: 'exitMessage',
-    },
-    {
-      title: '操作',
-      render: (text, record) => {
-        let hiddenVal :boolean = true;
-        if(record.status == 1 || record.status ==2){
-          hiddenVal = false;
-        }
-       return <Fragment> <a hidden={hiddenVal} onClick={() => this.handleStopped(record)}>停止</a></Fragment>
-      },
-    },
+    // {
+    //   title: '操作',
+    //   render: (text, record) => {
+    //     let hiddenVal :boolean = true;
+    //     if(record.status == 1 || record.status ==2){
+    //       hiddenVal = false;
+    //     }
+    //    return <Fragment> <a hidden={hiddenVal} onClick={() => this.handleStopped(record)}>停止</a></Fragment>
+    //   },
+    // },
   ];
 
   componentDidMount() {
@@ -209,7 +203,6 @@ class TableList extends Component<TableListProps> {
 
       const values = {
         ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
       };
 
       this.setState({
@@ -223,43 +216,17 @@ class TableList extends Component<TableListProps> {
     });
   };
 
-  handleStopped = (fields: TableListItem) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'jobExecutionHistory/stopped',
-      payload: {
-        name: fields.name,
-        desc: fields.name,
-        key: fields.key,
-      },
-    });
-
-    message.success('停止成功！');
-  };
-
   handleStandardTableChange = (
     pagination: Partial<TableListPagination>,
-    filtersArg: Record<keyof TableListItem, string[]>,
-    sorter: SorterResult<TableListItem>,
   ) => {
     const { dispatch } = this.props;
     const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
 
     const params: Partial<TableListParams> = {
       currentPage: pagination.current,
       pageSize: pagination.pageSize,
       ...formValues,
-      ...filters,
     };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
 
     dispatch({
       type: 'jobExecutionHistory/fetch',
@@ -275,7 +242,7 @@ class TableList extends Component<TableListProps> {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="任务名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+              {getFieldDecorator('jobName')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -285,6 +252,18 @@ class TableList extends Component<TableListProps> {
                 {STATUS.map((item,index) => (<Option value={index}>{item}</Option>))}
                 </Select>,
               )}
+            </FormItem>
+          </Col>
+          <Col md={8} sm={24}>
+            <FormItem label="执行编号">
+              {getFieldDecorator('runId')(<Input placeholder="请输入" />)}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+        <Col md={8} sm={24}>
+            <FormItem label="执行用户">
+              {getFieldDecorator('userName')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -308,13 +287,18 @@ class TableList extends Component<TableListProps> {
       loading
     } = this.props;
 
-    const {list,pagination} = data;
+    const { content, pageable ,totalElements} = data;
 
-    const paginationProps = pagination
+    const paginationProps = pageable
     ? {
         showSizeChanger: true,
         showQuickJumper: true,
-        ...pagination,
+        total: totalElements,
+        showTotal: ((total: number) => {
+          return `共 ${total} 条`;
+        }),
+        current: pageable.pageNumber ? pageable.pageNumber + 1 : 1,
+        pageSize: pageable.pageSize,
       }
     : false;
 
@@ -324,8 +308,9 @@ class TableList extends Component<TableListProps> {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <Table
-              dataSource={list}
+              dataSource={content}
               columns={this.columns}
+              rowKey={row => row.id+""}
               pagination={paginationProps}
               loading={loading}
               onChange={this.handleStandardTableChange}
