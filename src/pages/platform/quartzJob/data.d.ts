@@ -1,17 +1,15 @@
 export interface TableListItem {
-  id: string;
-  schedName:string;
+  fireInstanceId: string;
   triggerName:string;
   triggerGroup:string;
   jobName:string;
   jobGroup:string;
+  status:number;
+  message:string;
   nextFireTime:Date;
   prevFireTime:Date;
-  triggerState:string;
-  priority:number;
-  startTime:Date;
-  endTime:Date;
-  misFireNum:number;
+  fireTime:Date;
+  finishTime:Date;
 }
 
 export interface TableListPagination {
@@ -27,9 +25,8 @@ export interface TableListData {
 }
 
 export interface TableListParams {
-  triggerStatus: any;
-  triggerName: any;
-  schedName:string;
+  status: number;
+  triggerName: string;
   jobName:string;
   jobGroup:string;
   triggerGroup:string;

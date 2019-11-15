@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { loadQuartzTrigger, pauseQuartzTrigger, resumeQuartzTrigger } from '../service';
+import { loadQuartzTrigger } from '../service';
 
 import { TableListData } from '../data';
 
@@ -13,21 +13,19 @@ export type Effect = (
   effects: EffectsCommandMap & { select: <T>(func: (state: StateType) => T) => T },
 ) => void;
 
-export interface QuartzTriggerListModelType {
+export interface QuartzJobModelType {
   namespace: string;
   state: StateType;
   effects: {
     fetch: Effect;
-    pause:Effect;
-    resume:Effect;
   };
   reducers: {
     save: Reducer<StateType>;
   };
 }
 
-const QuartzTriggerListModel: QuartzTriggerListModelType = {
-  namespace: 'quartzTriggerList',
+const QuartzJobModel: QuartzJobModelType = {
+  namespace: 'quartzJob',
 
   state: {
     data: {
@@ -45,24 +43,6 @@ const QuartzTriggerListModel: QuartzTriggerListModelType = {
         payload: response,
       });
     },
-    *pause({ payload, callback }, { call, put }) {
-      yield call(pauseQuartzTrigger, payload);
-      const response = yield call(loadQuartzTrigger);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
-    },
-    *resume({ payload, callback }, { call, put }) {
-      yield call(resumeQuartzTrigger, payload);
-      const response = yield call(loadQuartzTrigger);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
-    },
   },
 
   reducers: {
@@ -75,4 +55,4 @@ const QuartzTriggerListModel: QuartzTriggerListModelType = {
   },
 };
 
-export default QuartzTriggerListModel;
+export default QuartzJobModel;

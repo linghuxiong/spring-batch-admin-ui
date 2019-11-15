@@ -7,8 +7,15 @@ export async function loadQuartzTrigger(params: TableListParams) {
   });
 }
 
-export async function removeQuartzTrigger(params: TableListParams) {
-  return request('/quartz/delete', {
+export async function pauseQuartzTrigger(params: TableListParams) {
+  return request('/quartz/pause', {
+    method: 'POST',
+    params,
+  });
+}
+
+export async function resumeQuartzTrigger(params: TableListParams) {
+  return request('/quartz/resume', {
     method: 'POST',
     params,
   });

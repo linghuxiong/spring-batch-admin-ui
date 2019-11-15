@@ -117,61 +117,67 @@ export default {
               path: '/runtime',
               name: 'runtime',
               icon: 'history',
-              routes:[
+              routes: [
                 {
                   name: 'jobExecutionHistory',
                   path: '/runtime/jobExecutionHistory',
                   component: './runtime/jobExecutionHistory',
-                  icon:'bar-chart'
+                  icon: 'bar-chart',
                 },
                 {
                   component: './404',
                 },
-              ]
+              ],
             },
             {
               path: '/platform',
               name: 'platform',
               icon: 'cloud-server',
-              routes:[
+              routes: [
                 {
                   name: 'quartzTriggerList',
                   path: '/platform/quartzTriggerList',
                   component: './platform/quartzTriggerList',
-                  icon:'schedule'
+                  icon: 'schedule',
                 },
                 {
                   name: 'jobRunDetail',
                   path: '/platform/jobRunDetail',
                   component: './platform/jobRunDetail',
-                  icon:'play-circle'
+                  icon: 'play-circle',
+                },
+                {
+                  name: 'quartzJob',
+                  path: '/platform/quartzJob',
+                  component: './platform/quartzJob',
+                  icon: 'play-circle',
                 },
                 {
                   component: './404',
                 },
-              ]
+              ],
             },
             {
               path: '/configuration',
               name: 'configuration',
               icon: 'control',
-              routes:[
+              routes: [
                 {
                   name: 'triggerList',
                   path: '/configuration/triggerList',
                   component: './configuration/triggerList',
-                  icon:'schedule'
+                  icon: 'schedule',
                 },
                 {
                   name: 'jobList',
                   path: '/configuration/jobList',
                   component: './configuration/jobList',
-                  icon:'play-circle'
+                  icon: 'play-circle',
                 },
                 {
                   component: './404',
                 },
-              ]
+              ],
             },
             {
               component: './404',

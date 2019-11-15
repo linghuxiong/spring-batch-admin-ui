@@ -7,35 +7,33 @@ import {
   Row,
   message,
   Table,
-  Select
+  Select,
+  Divider
 } from 'antd';
 import React, { Component, Fragment } from 'react';
 
 import { Dispatch, Action } from 'redux';
 import { FormComponentProps } from 'antd/es/form';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { SorterResult, ColumnProps } from 'antd/es/table';
+import { ColumnProps } from 'antd/es/table';
 import { connect } from 'dva';
 import moment from 'moment';
 import { StateType } from './models/quartzTriggerList';
 import { TableListItem, TableListPagination, TableListParams } from './data';
 
 import styles from './style.less';
+import _ from 'lodash';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = (obj: { [x: string]: string[] }) =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
-
-//const statusMap = ['default', 'processing', 'success', 'error'];
 
 interface TableListProps extends FormComponentProps {
   dispatch: Dispatch<
     Action<
       | 'quartzTriggerList/fetch'
       | 'quartzTriggerList/remove'
+      | 'quartzTriggerList/resume'
+      | 'quartzTriggerList/pause'
     >
   >;
   loading: boolean;
@@ -68,6 +66,44 @@ class TableList extends Component<TableListProps> {
     formValues: {}
   }
 
+  expandedRowRender = (record: any) => {
+    const columns = [
+      {
+        title: '下次触发时间',
+        dataIndex: 'nextFireTime',
+        render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+      {
+        title: '预期启动时间',
+        dataIndex: 'prevFireTime',
+        render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+      {
+        title: '开始时间',
+        dataIndex: 'startTime',
+        render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+      {
+        title: '结束时间',
+        dataIndex: 'endTime',
+        render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      },
+    ];
+
+    let data = [];
+    data.push({
+      key:record.id,
+      nextFireTime:record.nextFireTime,
+      prevFireTime:record.prevFireTime,
+      startTime:record.startTime,
+      endTime:record.endTime,
+    });
+
+    console.log(data);
+
+    return <Table columns={columns} dataSource={data} pagination={false} />;
+  };
+
   columns: ColumnProps<TableListItem>[] = [
     {
       title: '调度名称',
@@ -91,7 +127,7 @@ class TableList extends Component<TableListProps> {
     },
     {
       title: '状态',
-      dataIndex: 'triggerStatus',
+      dataIndex: 'triggerState',
     },
     {
       title: '优先级',
@@ -102,33 +138,20 @@ class TableList extends Component<TableListProps> {
       dataIndex: 'misFireNum',
     },
     {
-      title: '下次触发时间',
-      dataIndex: 'nextFireTime',
-      sorter: true,
-      render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-      title: '预期启动时间',
-      dataIndex: 'prevFireTime',
-      sorter: true,
-      render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-      title: '开始时间',
-      dataIndex: 'startTime',
-      sorter: true,
-      render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-      title: '结束时间',
-      dataIndex: 'endTime',
-      sorter: true,
-      render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
       title: '操作',
-      render: (text, record) => {
-        return <Fragment> <a onClick={() => this.handleRemove(record.id)}>删除</a></Fragment>
+      render: (record) => {
+        console.log(record);
+        console.log(record.triggerState);
+        console.log(_.isEqual("PAUSED",record.triggerState));
+          if(_.isEqual("PAUSED",record.triggerState)){
+            return <Fragment>
+              <a onClick={() => this.handleResume(record.id)}>恢复</a>
+            </Fragment>
+          }else{
+            return <Fragment>
+              <a onClick={() => this.handlePause(record.id)}>暂停</a>
+            </Fragment>
+          };          
       },
     },
   ];
@@ -168,16 +191,28 @@ class TableList extends Component<TableListProps> {
     });
   };
 
-  handleRemove = (key: string) => {
+  handleResume = (key: string) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'quartzTriggerList/remove',
+      type: 'quartzTriggerList/resume',
       payload: {
         id: key
       },
     });
 
-    message.success('删除成功');
+    message.success('恢复成功');
+  };
+
+  handlePause = (key: string) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'quartzTriggerList/pause',
+      payload: {
+        id: key
+      },
+    });
+
+    message.success('暂停成功');
   };
 
   handleStandardTableChange = (
@@ -261,7 +296,7 @@ class TableList extends Component<TableListProps> {
       loading
     } = this.props;
 
-    const { content, pageable ,totalElements} = data;
+    const { content, pageable, totalElements } = data;
 
     const paginationProps = pageable
       ? {
@@ -287,6 +322,7 @@ class TableList extends Component<TableListProps> {
               rowKey={row => row.id}
               pagination={paginationProps}
               loading={loading}
+              expandedRowRender={this.expandedRowRender}
               onChange={this.handleStandardTableChange}
             />
           </div>
