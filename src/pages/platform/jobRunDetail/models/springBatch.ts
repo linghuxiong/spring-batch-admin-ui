@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { loadBatchJob,stopBatchJob } from '../service';
+import { loadBatchJob, stopBatchJob, abandonBatchJob, restartBatchJob, startNextInstanceBatchJob } from '../service';
 
 import { TableListData } from '../data';
 
@@ -19,6 +19,9 @@ export interface JobRunDetailModelType {
   effects: {
     load: Effect;
     stop: Effect;
+    abandon: Effect;
+    restart: Effect;
+    startNextInstance: Effect;
   };
   reducers: {
     save: Reducer<StateType>;
@@ -32,7 +35,7 @@ const JobRunDetailModel: JobRunDetailModelType = {
     data: {
       content: [],
       pageable: {},
-      totalElements:0,
+      totalElements: 0,
     },
   },
 
@@ -45,7 +48,35 @@ const JobRunDetailModel: JobRunDetailModelType = {
       });
     },
     *stop({ payload, callback }, { call, put }) {
-      const response = yield call(stopBatchJob, payload);
+      yield call(stopBatchJob, payload);
+      const response = yield call(loadBatchJob, payload);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+      if (callback) callback();
+    },
+    *abandon({ payload, callback }, { call, put }) {
+      yield call(abandonBatchJob, payload);
+      const response = yield call(loadBatchJob, payload);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+      if (callback) callback();
+    },
+    *restart({ payload, callback }, { call, put }) {
+      yield call(restartBatchJob, payload);
+      const response = yield call(loadBatchJob, payload);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+      if (callback) callback();
+    },
+    *startNextInstance({ payload, callback }, { call, put }) {
+      yield call(startNextInstanceBatchJob, payload);
+      const response = yield call(loadBatchJob, payload);
       yield put({
         type: 'save',
         payload: response,

@@ -21,6 +21,7 @@ import { TableListItem, TableListPagination, TableListParams } from './data';
 
 import styles from './style.less';
 import Tag from 'antd/es/tag';
+import _ from 'lodash';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -123,18 +124,23 @@ class TableList extends Component<TableListProps> {
       sorter: true,
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
-    {
-      title: '处理结果',
-      dataIndex: 'message',
-      render: (text: string) => {
-        if (text && text.length < 15) {
-          return text;
-        } else if(text){
-          return text.substr(10) + "……"
-        }
-        return text;
-      },
-    },
+    // {
+    //   title: '处理结果',
+    //   dataIndex: 'message',
+    //   render: (text: string) => {
+        
+    //     if(_.isEqual(text,"null")){
+    //       return null;
+    //     }
+
+    //     if (text && text.length < 15) {
+    //       return text;
+    //     } else if(text){
+    //       return text.substr(10) + "……"
+    //     }
+    //     return text;
+    //   },
+    // },
   ];
 
   componentDidMount() {

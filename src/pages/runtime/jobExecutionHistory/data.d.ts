@@ -5,7 +5,7 @@ export interface TableListItem {
   runId:number;
   exitCode:string;
   exitMessage:string;
-  status: number;
+  status: string;
   updatedAt: Date;
   createAt: Date;
   endAt:Date;

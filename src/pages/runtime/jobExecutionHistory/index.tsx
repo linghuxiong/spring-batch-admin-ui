@@ -22,6 +22,7 @@ import { StateType } from './models/jobExecutionHistory';
 import { TableListItem, TableListPagination, TableListParams } from './data';
 
 import styles from './style.less';
+import Tag from 'antd/es/tag';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -31,7 +32,6 @@ const getValue = (obj: { [x: string]: string[] }) =>
     .join(',');
 
 type IStatusMapType = 'default' | 'processing' | 'success' | 'error';
-//const statusMap = ['default', 'processing', 'success', 'error'];
 const STATUS = ['COMPLETED', 'STARTING', 'STARTED', 'STOPPING', 'STOPPED', 'FAILED', 'ABANDONED', 'UNKNOWN'];
 
 interface TableListProps extends FormComponentProps {
@@ -72,12 +72,12 @@ class TableList extends Component<TableListProps> {
 
   columns:ColumnProps<TableListItem>[] = [
     {
-      title: '任务名称',
-      dataIndex: 'jobName',
-    },
-    {
       title: '执行编号',
       dataIndex: 'runId',
+    },
+    {
+      title: '任务名称',
+      dataIndex: 'jobName',
     },
     {
       title: '执行用户',
@@ -86,53 +86,23 @@ class TableList extends Component<TableListProps> {
     {
       title: '状态',
       dataIndex: 'status',
-      filters: [
-        {
-          text: STATUS[0],
-          value: '0',
-        },
-        {
-          text: STATUS[1],
-          value: '1',
-        },
-        {
-          text: STATUS[2],
-          value: '2',
-        },
-        {
-          text: STATUS[3],
-          value: '3',
-        },
-        {
-          text: STATUS[4],
-          value: '4',
-        },
-        {
-          text: STATUS[5],
-          value: '5',
-        },
-        {
-          text: STATUS[6],
-          value: '6',
-        },
-        {
-          text: STATUS[7],
-          value: '7'
-        }
-      ],
-      render(val: number) {
-        let statusVal:IStatusMapType;
-        if(val == 0){
-          statusVal = 'success';
-        }else if(val == 1 || val == 2){
-          statusVal = 'processing';
-        }else if(val ==5 || val == 6){
-          statusVal = 'error';
+      render: (tag: string) =>{
+        let color:string;
+        if(_.isEqual(tag,'COMPLETED')){
+          color = 'green';
+        }else if(_.isEqual(tag,'STARTING')|| _.isEqual(tag,'STARTED')){
+          color = 'orange';
+        }else if(_.isEqual(tag,'FAILED')|| _.isEqual(tag,'ABANDONED')){
+          color = 'red';
         }else{
-          statusVal = 'default';
+          color = 'volcano';
         }
-        return <Badge status={statusVal} text={STATUS[val]} />;
-      },
+        return (
+          <Tag color={color} key={tag}>
+            {tag}
+          </Tag>
+      );
+    },
     },
     {
       title: '创建时间',

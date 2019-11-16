@@ -8,7 +8,8 @@ import {
   Row,
   Select,
   message,
-  Table
+  Table,
+  Divider
 } from 'antd';
 import React, { Component, Fragment } from 'react';
 
@@ -36,6 +37,9 @@ interface TableListProps extends FormComponentProps {
     Action<
       | 'springBatch/load'
       | 'springBatch/stop'
+      | 'springBatch/restart'
+      | 'springBatch/abandon'
+      | 'springBatch/startNextInstance'
     >
   >;
   loading: boolean;
@@ -84,28 +88,23 @@ class TableList extends Component<TableListProps> {
     {
       title: '状态',
       dataIndex: 'status',
-      render: (tag: string) =>{
-            let color:string;
-            if(_.isEqual(tag,'COMPLETED')){
-              color = 'green';
-            }else if(_.isEqual(tag,'STARTING')|| _.isEqual(tag,'STARTED')){
-              color = 'orange';
-            }else if(_.isEqual(tag,'FAILED')|| _.isEqual(tag,'ABANDONED')){
-              color = 'red';
-            }else{
-              color = 'volcano';
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag}
-              </Tag>
-          );
-        },
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: (tag: string) => {
+        let color: string;
+        if (_.isEqual(tag, 'COMPLETED')) {
+          color = 'green';
+        } else if (_.isEqual(tag, 'STARTING') || _.isEqual(tag, 'STARTED')) {
+          color = 'orange';
+        } else if (_.isEqual(tag, 'FAILED') || _.isEqual(tag, 'ABANDONED')) {
+          color = 'red';
+        } else {
+          color = 'volcano';
+        }
+        return (
+          <Tag color={color} key={tag}>
+            {tag}
+          </Tag>
+        );
+      },
     },
     {
       title: '开始时间',
@@ -129,11 +128,23 @@ class TableList extends Component<TableListProps> {
     {
       title: '操作',
       render: (text, record) => {
-        let hiddenVal: boolean = true;
-        if (_.isEqual(record.status, 'STARTING') || _.isEqual(record.status, 'STARTED')) {
-          hiddenVal = false;
-        }
-        return <Fragment> <a hidden={hiddenVal} onClick={() => this.handleStopped(record)}>停止</a></Fragment>
+        return <Fragment>
+          {(_.isEqual(record.status, 'STARTING') || _.isEqual(record.status, 'STARTED')) ?
+            <span>
+              <a onClick={() => this.handleStopped(record)}>停止</a>
+              <Divider type="vertical" />
+            </span> : null
+          }
+          {!(_.isEqual(record.status, 'COMPLETED') || _.isEqual(record.status, 'ABANDONED')) ?
+            <span>
+              <a onClick={() => this.handleAbandon(record)}>放弃</a>
+              <Divider type="vertical" />
+            </span> : null
+          }
+          <a onClick={() => this.handleRestart(record)}>重新开始</a>
+          <Divider type="vertical" />
+          <a onClick={() => this.handleStartNextInstance(record)}>开始下一个</a>
+        </Fragment>
       },
     },
   ];
@@ -163,10 +174,10 @@ class TableList extends Component<TableListProps> {
     const { dispatch, form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      
+
       const params: Partial<TableListParams> = {
-        status:fieldsValue.Status,
-        name:fieldsValue.JobName,
+        status: fieldsValue.Status,
+        name: fieldsValue.JobName,
       };
 
       dispatch({
@@ -188,6 +199,42 @@ class TableList extends Component<TableListProps> {
     message.success('停止成功！');
   };
 
+  handleAbandon = (fields: TableListItem) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'springBatch/abandon',
+      payload: {
+        jobExecutionId: fields.jobExecutionId,
+      },
+    });
+
+    message.success('放弃成功！');
+  };
+
+  handleRestart = (fields: TableListItem) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'springBatch/restart',
+      payload: {
+        jobExecutionId: fields.jobExecutionId,
+      },
+    });
+
+    message.success('重启成功！');
+  };
+
+  handleStartNextInstance = (fields: TableListItem) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'springBatch/startNextInstance',
+      payload: {
+        jobName: fields.jobName,
+      },
+    });
+
+    message.success('开启成功');
+  };
+
   handleStandardTableChange = (
     pagination: Partial<PaginationProps>,
   ) => {
@@ -197,8 +244,8 @@ class TableList extends Component<TableListProps> {
     const params: Partial<TableListParams> = {
       currentPage: pagination.current,
       pageSize: pagination.pageSize,
-      status:formValues.Status,
-      name:formValues.JobName,
+      status: formValues.Status,
+      name: formValues.JobName,
     };
     dispatch({
       type: 'springBatch/load',
