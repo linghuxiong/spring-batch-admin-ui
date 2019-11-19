@@ -1,11 +1,12 @@
-import { Reducer } from 'redux';
+import { Reducer, AnyAction } from 'redux';
 import { routerRedux } from 'dva/router';
-import { Effect } from 'dva';
+import { Effect, EffectsCommandMap } from 'dva';
 import { stringify } from 'querystring';
 
 import { fakeAccountLogin, getFakeCaptcha } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
+import { reloadAuthorized } from '@/utils/Authorized';
 
 export interface StateType {
   status?: 'ok' | 'error';
@@ -40,10 +41,11 @@ const Model: LoginModelType = {
         type: 'changeLoginStatus',
         payload: response,
       });
-      // Login successfully
-      if (response.status === 'ok') {
-        const urlParams = new URL(window.location.href);
+      if(response.access_token){
+        localStorage.setItem('token', response.access_token)
+        reloadAuthorized()
         const params = getPageQuery();
+        const urlParams = new URL(window.location.href);
         let { redirect } = params as { redirect: string };
         if (redirect) {
           const redirectUrlParams = new URL(redirect);
@@ -59,6 +61,26 @@ const Model: LoginModelType = {
         }
         yield put(routerRedux.replace(redirect || '/'));
       }
+
+      // Login successfully
+      // if (response.status === 'ok') {
+      //   const urlParams = new URL(window.location.href);
+      //   const params = getPageQuery();
+      //   let { redirect } = params as { redirect: string };
+      //   if (redirect) {
+      //     const redirectUrlParams = new URL(redirect);
+      //     if (redirectUrlParams.origin === urlParams.origin) {
+      //       redirect = redirect.substr(urlParams.origin.length);
+      //       if (redirect.match(/^\/.*#/)) {
+      //         redirect = redirect.substr(redirect.indexOf('#') + 1);
+      //       }
+      //     } else {
+      //       window.location.href = redirect;
+      //       return;
+      //     }
+      //   }
+      //   yield put(routerRedux.replace(redirect || '/'));
+      // }
     },
 
     *getCaptcha({ payload }, { call }) {
@@ -82,11 +104,11 @@ const Model: LoginModelType = {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      setAuthority(payload.currentAuthority);
+      setAuthority("admin");
       return {
         ...state,
-        status: payload.status,
-        type: payload.type,
+        status: "ok",
+        type: "account",
       };
     },
   },

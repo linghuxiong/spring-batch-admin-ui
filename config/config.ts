@@ -241,24 +241,32 @@ export default {
     basePath: '/',
   },
   chainWebpack: webpackPlugin,
-  proxy: {
-    '/batch': {
-      target: 'http://localhost:8080/',
-      changeOrigin: true,
-    },
-    '/trigger': {
-      target: 'http://localhost:8080/',
-      changeOrigin: true,
-    },
-    '/job': {
-      target: 'http://localhost:8080/',
-      changeOrigin: true,
-    },
-    '/quartz': {
-      target: 'http://localhost:8080/',
-      changeOrigin: true,
-    },
-  },
+  proxy: [{
+    context: ['/batch', '/trigger','/job','/quartz','/oauth','/userApi'],
+    target: 'http://localhost:8080',
+  }]
+  // proxy: {
+  //   '/batch': {
+  //     target: 'http://localhost:8080/',
+  //     changeOrigin: true,
+  //   },
+  //   '/trigger': {
+  //     target: 'http://localhost:8080/',
+  //     changeOrigin: true,
+  //   },
+  //   '/job': {
+  //     target: 'http://localhost:8080/',
+  //     changeOrigin: true,
+  //   },
+  //   '/quartz': {
+  //     target: 'http://localhost:8080/',
+  //     changeOrigin: true,
+  //   },
+  //   '/oauth': {
+  //     target: 'http://localhost:8080/',
+  //     changeOrigin: true,
+  //   }
+  // },
   /*
   proxy: {
     '/server/api/': {

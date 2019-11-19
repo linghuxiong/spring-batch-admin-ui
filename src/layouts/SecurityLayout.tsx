@@ -21,13 +21,15 @@ class SecurityLayout extends React.Component<SecurityLayoutProps, SecurityLayout
   };
 
   componentDidMount() {
-    this.setState({
-      isReady: true,
-    });
     const { dispatch } = this.props;
     if (dispatch) {
       dispatch({
         type: 'user/fetchCurrent',
+        callback: () => {
+          this.setState({
+            isReady: true,
+          });
+        },
       });
     }
   }
@@ -42,7 +44,7 @@ class SecurityLayout extends React.Component<SecurityLayoutProps, SecurityLayout
       redirect: window.location.href,
     });
 
-    if ((!isLogin && loading) || !isReady) {
+    if ((!isLogin && loading) || !isReady ) {
       return <PageLoading />;
     }
     if (!isLogin) {

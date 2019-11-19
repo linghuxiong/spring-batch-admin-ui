@@ -53,4 +53,22 @@ const request = extend({
   credentials: 'include', // 默认请求是否带上cookie
 });
 
+request.interceptors.request.use((url, options) => {
+  options.headers = {
+    ...options.headers,
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
+  }
+  return (
+    {
+      url: `${url}`,
+      options: {
+        ...options,
+        interceptors: true,
+      },
+    }
+  );
+});
+
+
+
 export default request;

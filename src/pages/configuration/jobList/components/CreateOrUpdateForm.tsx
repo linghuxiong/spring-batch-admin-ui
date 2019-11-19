@@ -131,7 +131,6 @@ class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpda
             label="状态"
           >
             <div>
-              {console.log(values)}
               {getFieldDecorator('status', {
                 initialValue: values.status+"",
               })(

@@ -50,6 +50,9 @@ class Login extends Component<LoginProps, LoginState> {
       dispatch({
         type: 'login/login',
         payload: {
+          grant_type:"password",
+          client_id:"client",
+          client_secret:"secret",
           ...values,
           type,
         },

@@ -5,12 +5,15 @@ export interface LoginParamsType {
   password: string;
   mobile: string;
   captcha: string;
+  grant_type:string;
+  client_id:string;
+  client_secret:string;
 }
-
+//grant_type=password&client_id=client&client_secret=secret
 export async function fakeAccountLogin(params: LoginParamsType) {
-  return request('/api/login/account', {
-    method: 'POST',
-    data: params,
+  return request('/oauth/token', {
+    method:"GET",
+    params,
   });
 }
 
