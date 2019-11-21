@@ -69,6 +69,13 @@ request.interceptors.request.use((url, options) => {
   );
 });
 
+request.interceptors.response.use(async (response) => {
+  if (response && response.status && response.status == 401) {
+    location.href = "/user/login"
+  }
+  return response;
+});
+
 
 
 export default request;
