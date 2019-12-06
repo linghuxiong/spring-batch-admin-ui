@@ -39,6 +39,7 @@ interface TableListProps extends FormComponentProps {
       | 'jobList/saveJob'
       | 'jobList/remove'
       | 'jobList/toggleStatus'
+      | 'jobList/launch'
     >
   >;
   loading: boolean;
@@ -140,6 +141,8 @@ class TableList extends Component<TableListProps, TableListState> {
           <a onClick={() => this.toggleStatus(record.id,1)}>开始</a>:
           <a onClick={() => this.toggleStatus(record.id,0)}>停止</a>
           }
+          <Divider type="vertical" />
+          <a onClick={() => this.launch(record.id,true)}>手动触发</a>
           <Divider type="vertical" />
           <a onClick={() => this.handleUpdateModalVisible(record,true)}>编辑</a>
           <Divider type="vertical" />
@@ -266,6 +269,16 @@ class TableList extends Component<TableListProps, TableListState> {
     }else if(status == 1){
       message.success('启动成功');
     }
+  };
+
+  launch = (key:number) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'jobList/launch',
+      payload: {
+        jobId:key,
+      },
+    });
   };
 
   renderForm() {

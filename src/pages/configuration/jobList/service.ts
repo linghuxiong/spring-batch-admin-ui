@@ -14,6 +14,13 @@ export async function removeJob(params: TableListParams) {
   });
 }
 
+export async function launch(params: TableListParams) {
+  return request('/job/launch', {
+    method: 'POST',
+    params,
+  });
+}
+
 export async function saveJob(params: TableListParams) {
   return request('/job/save', {
     method: 'POST',

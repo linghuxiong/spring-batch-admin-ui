@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { queryJob,saveJob,removeJob,toggleStatus} from '../service';
+import { queryJob,saveJob,removeJob,toggleStatus, launch} from '../service';
 
 import { TableListData } from '../data';
 
@@ -21,6 +21,7 @@ export interface JobListModelType {
     saveJob: Effect;
     remove: Effect;
     toggleStatus: Effect;
+    launch: Effect;
   };
   reducers: {
     save: Reducer<StateType>;
@@ -62,6 +63,10 @@ const JobListModel: JobListModelType = {
         type: 'save',
         payload: response,
       });
+      if (callback) callback();
+    },
+    *launch({ payload, callback }, { call, put }) {
+      yield call(launch, payload);
       if (callback) callback();
     },
     *toggleStatus({payload, callback},{call, put}){
