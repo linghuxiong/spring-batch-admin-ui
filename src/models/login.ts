@@ -41,7 +41,7 @@ const Model: LoginModelType = {
         type: 'changeLoginStatus',
         payload: response,
       });
-      if(response.access_token){
+      if (response.access_token) {
         localStorage.setItem('token', response.access_token)
         reloadAuthorized()
         const params = getPageQuery();
@@ -104,11 +104,11 @@ const Model: LoginModelType = {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      setAuthority("admin");
+      setAuthority('admin');
       return {
         ...state,
-        status: "ok",
-        type: "account",
+        status: 'ok',
+        type: 'account',
       };
     },
   },

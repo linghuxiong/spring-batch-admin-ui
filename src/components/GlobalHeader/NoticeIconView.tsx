@@ -53,9 +53,11 @@ class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
 
   getNoticeData = (): { [key: string]: NoticeItem[] } => {
     const { notices = [] } = this.props;
-    if (notices.length === 0) {
+
+    if (!notices.length || notices.length === 0) {
       return {};
     }
+    
     const newNotices = notices.map(notice => {
       const newNotice = { ...notice };
       if (newNotice.datetime) {

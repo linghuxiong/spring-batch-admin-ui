@@ -2,20 +2,20 @@ import request from '@/utils/request';
 import { TableListParams } from './data';
 
 export async function queryTrigger(params: TableListParams) {
-  return request('/trigger/load', {
+  return request('/batch-admin/trigger/load', {
     params,
   });
 }
 
 export async function removeTrigger(params: TableListParams) {
-  return request('/trigger/delete', {
+  return request('/batch-admin/trigger/delete', {
     method: 'POST',
     params,
   });
 }
 
 export async function saveTrigger(params: TableListParams) {
-  return request('/trigger/save', {
+  return request('/batch-admin/trigger/save', {
     method: 'POST',
     data: {
       ...params,
@@ -24,7 +24,7 @@ export async function saveTrigger(params: TableListParams) {
 }
 
 export async function toggleTriggerStatus(params: TableListParams) {
-  return request('/trigger/toggleStatus', {
+  return request('/batch-admin/trigger/toggleStatus', {
     method: 'POST',
     params,
   });

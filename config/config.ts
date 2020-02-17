@@ -238,13 +238,14 @@ export default {
     },
   },
   manifest: {
-    basePath: '/',
+    basePath: '/batch-admin/',
   },
   chainWebpack: webpackPlugin,
   proxy: [{
-    context: ['/batch', '/trigger','/job','/quartz','/oauth','/userApi'],
-    target: 'http://localhost:8080',
-  }]
+
+    context: ['/batch-admin'],
+    target: 'http://localhost:9002',
+  }],
   // proxy: {
   //   '/batch': {
   //     target: 'http://localhost:8080/',
@@ -276,4 +277,6 @@ export default {
     },
   },
   */
+ base: '/batch-admin/',
+ publicPath: '/batch-admin/',
 } as IConfig;
