@@ -42,7 +42,7 @@ const UserModel: UserModelType = {
   },
 
   effects: {
-    *fetch({callback}, { call, put }) {
+    *fetch({ callback }, { call, put }) {
       const response = yield call(queryUsers);
       yield put({
         type: 'save',
@@ -52,7 +52,7 @@ const UserModel: UserModelType = {
         callback();
     }
     },
-    *fetchCurrent({callback}, { call, put }) {
+    *fetchCurrent({ callback }, { call, put }) {
       const response = yield call(queryCurrent);
       yield put({
         type: 'saveCurrentUser',

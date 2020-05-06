@@ -1,7 +1,7 @@
 const RouterConfig = require('../../config/config').default.routes;
 const { uniq } = require('lodash');
 
-const BASE_URL = `http://localhost:${process.env.PORT || 8000}/batch-admin`;
+const BASE_URL = `http://localhost:${process.env.PORT || 8000}`;
 
 function formatter(routes, parentPath = '') {
   const fixedParentPath = parentPath.replace(/\/{1,}/g, '/');

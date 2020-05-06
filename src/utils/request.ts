@@ -56,7 +56,7 @@ const request = extend({
 request.interceptors.request.use((url, options) => {
   options.headers = {
     ...options.headers,
-    'Authorization': `Bearer ${localStorage.getItem('token')}`
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
   }
   return (
     {
@@ -69,13 +69,10 @@ request.interceptors.request.use((url, options) => {
   );
 });
 
-request.interceptors.response.use(async (response) => {
-  if (response && response.status && response.status == 401) {
-    location.href = "/user/login"
+request.interceptors.response.use(async response => {
+  if (response && response.status && response.status === 401) {
+    window.location.href = 'user/login'
   }
   return response;
 });
-
-
-
 export default request;

@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { queryJob,saveJob,removeJob,toggleStatus, launch} from '../service';
+import { queryJob, saveJob, removeJob, toggleStatus, launch} from '../service';
 
 import { TableListData } from '../data';
 

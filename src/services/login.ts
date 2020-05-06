@@ -9,10 +9,9 @@ export interface LoginParamsType {
   client_id:string;
   client_secret:string;
 }
-//grant_type=password&client_id=client&client_secret=secret
 export async function fakeAccountLogin(params: LoginParamsType) {
-  return request('/batch-admin/oauth/token', {
-    method:"GET",
+  return request('/batch/oauth/token', {
+    method: 'GET',
     params,
   });
 }

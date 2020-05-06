@@ -28,8 +28,8 @@ interface CreateOrUpdateFormProps extends FormComponentProps {
 class CreateOrUpdateForm extends Component<CreateOrUpdateFormProps, CreateOrUpdateFormState> {
 
   render() {
-    const { modalVisible, form, handleAdd,handleModalVisible, title,values } = this.props;
-    const { getFieldDecorator,getFieldValue } = form;
+    const { modalVisible, form, handleAdd, handleModalVisible, title, values } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
 
     const okHandle = () => {
       form.validateFields((err, fieldsValue) => {

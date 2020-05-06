@@ -54,7 +54,7 @@ export default {
   menu: {
     locale: true,
   },
-  title: '批处理管理平台',
+  title: '令狐兄批处理管理监控平台',
   pwa: false,
   iconfontUrl: '',
 } as DefaultSettings;

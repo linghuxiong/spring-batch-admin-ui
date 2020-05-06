@@ -1,6 +1,6 @@
-import { Reducer, AnyAction } from 'redux';
+import { Reducer } from 'redux';
 import { routerRedux } from 'dva/router';
-import { Effect, EffectsCommandMap } from 'dva';
+import { Effect } from 'dva';
 import { stringify } from 'querystring';
 
 import { fakeAccountLogin, getFakeCaptcha } from '@/services/login';
@@ -89,10 +89,10 @@ const Model: LoginModelType = {
     *logout(_, { put }) {
       const { redirect } = getPageQuery();
       // redirect
-      if (window.location.pathname !== '/user/login' && !redirect) {
+      if (window.location.pathname !== 'user/login' && !redirect) {
         yield put(
           routerRedux.replace({
-            pathname: '/user/login',
+            pathname: 'user/login',
             search: stringify({
               redirect: window.location.href,
             }),

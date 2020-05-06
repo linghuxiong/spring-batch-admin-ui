@@ -242,8 +242,7 @@ export default {
   },
   chainWebpack: webpackPlugin,
   proxy: [{
-
-    context: ['/batch-admin'],
+    context: ['/batch'],
     target: 'http://localhost:9002',
   }],
   // proxy: {
